@@ -21,7 +21,9 @@ i = 0
 for house in households:
     user_list = RandomUser.generate_users(house.members, {'nat': 'it'})
     for user in user_list:
-        persons.append(Person(house.id, user.get_first_name(), user.get_last_name(), user.get_gender(), user.get_cell(),
+
+        #POTREBBE NON SERVIRE SALVARE TUTTI I DATI NELLA CLASSE PERSON
+        persons.append(Person(i, house.id, user.get_first_name(), user.get_last_name(), user.get_gender(), user.get_cell(),
                               user.get_city(), user.get_email()))
         #Creates the query to generate the Person node
         complete_query = complete_query + 'CREATE(p' + str(i) + ': Person {FirstName: "' + user.get_first_name() + '", LastName: "' + user.get_last_name() + '", Gender: "' + user.get_gender() + '", Cell: "' + user.get_cell() + '", City: "' + user.get_city() + '", Email: "' + user.get_email() + '"})\n'
