@@ -45,24 +45,33 @@ locations = [Location("Cinema1", 2), Location("Cinema2", 2), Location("Cinema3",
              Location("Pub1", 1), Location("Pub2", 1), Location("Pub3", 1), Location("Pub4", 1), Location("Pub5", 1),
              Location("Hairdresser1", 0.5), Location("Hairdresser2", 0.5)]
 
+household_number = 50
+daily_test_num = 50
+visits_num = 200
+days = 31
+
 complete_query = ""
 
 # Generates nodes for the vaccines
+print("Generating nodes for vaccines...")
 for vaccine in vaccines:
     complete_query = complete_query + 'CREATE(' + str(
         vaccine.name) + ': Vaccine{name:"' + vaccine.name + '", coverage:' + str(
         vaccine.coverage) + ', min_doses:' + str(vaccine.minDoses) + '})\n'
 
 # Generates nodes for tests
+print("Generating nodes for test types...")
 for test in tests:
     complete_query = complete_query + 'CREATE(' + test.type + ': Test{type:"' + test.type + '"})\n'
 
 # Generates nodes for locations
+print("Generating nodes for locations...")
 for location in locations:
     complete_query = complete_query + 'CREATE(' + location.name + ': Location{name:"' + location.name + '", avg_stay_time:' + str(location.averageStay) + '})\n'
 
 # Generates 30 households nodes with associated the number of members
-for house_id in range(30):
+print("Generating nodes for households...")
+for house_id in range(household_number):
     members = randint(1, 7)
     address = RandomUser().get_street()
     household = Household(house_id, members, address)
@@ -71,6 +80,7 @@ for house_id in range(30):
         house_id) + ', members: ' + str(members) + ', address:"' + household.address + '"})\n'
 
 # Generates people for each household with random data taken from randomuser library
+print("Generating nodes for people...")
 i = 0
 for house in households:
     user_list = RandomUser.generate_users(house.members, {'nat': 'it'})
@@ -86,10 +96,11 @@ for house in households:
         i += 1
 
 # Takes 80% of the people in the db and assigns a vaccine to them
+print("Associating people with vaccines...")
 people_copy = people.copy()
 vaccinatedNum = int(len(people) * 0.8)
 
-for i in range(0, vaccinatedNum):
+for i in range(vaccinatedNum):
     vaccinated = people_copy.pop(randint(0, len(people_copy) - 1))
     # vaccine_type = randint(0, len(vaccines))
     vaccine = choice(vaccines)
@@ -103,6 +114,7 @@ for i in range(0, vaccinatedNum):
                                                                          random()))) + '")}]->(' + vaccine.name + ')\n'
 
 # Generates contacts between random people
+print("Generating contacts between people...")
 contactNum = len(people)
 for i in range(contactNum):
     p1 = choice(people)
@@ -113,6 +125,7 @@ for i in range(contactNum):
         complete_query = complete_query + 'CREATE (p' + str(p1.id) + ')-[:CONTACT{datetime:datetime("' + str(date.date()) + 'T' + str(date.time()) + '")}]->(p' + str(
             p2.id) + ')\n'
 
+"""
 # Associates tests with people
 for i in range(100):
     tested_person = choice(people)
@@ -123,9 +136,24 @@ for i in range(100):
 
     complete_query = complete_query + 'CREATE(p' + str(
         tested_person.id) + ')-[:TAKES{datetime:datetime("' + str(test_date) + '") , result:"' + test_result + '"}]->(' + test_type.type + ')\n'
+"""
+
+# Generates one test per day form 2021-10-14 to 2021-11-14
+print("Generating 50 tests a day from 2021-10-14 to 2021-11-14...")
+test_date = datetime.date(2021,10,1)
+for day in range(days):
+    for dailyTest in range(daily_test_num):
+        tested_person = choice(people)
+        test_type = choice(tests)
+        test_result = "Negative" if random() > 0.4 else "Positive"
+        complete_query = complete_query + 'CREATE(p' + str(
+            tested_person.id) + ')-[:TAKES{datetime:datetime("' + str(
+            test_date) + '") , result:"' + test_result + '"}]->(' + test_type.type + ')\n'
+    test_date += datetime.timedelta(days=1)
 
 # Associates locations with people
-for i in range(100):
+print("Associating people with locations...")
+for i in range(visits_num):
     location = choice(locations)
     person = choice(people)
     location_date = datetime.date.fromtimestamp(random_date("2020-2-1", "2021-11-14", random()))
@@ -133,3 +161,6 @@ for i in range(100):
     complete_query = complete_query + 'CREATE(p' + str(person.id) + ')-[:VISITS{datetime:datetime("' + str(location_date) + '")}]->(' + location.name + ')\n'
 
 print(complete_query)
+f = open("Query.txt", "w", encoding="utf-8")
+f.write(complete_query)
+f.close()
