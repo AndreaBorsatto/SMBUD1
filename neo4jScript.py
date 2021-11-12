@@ -46,8 +46,8 @@ locations = [Location("Cinema1", 2), Location("Cinema2", 2), Location("Cinema3",
              Location("Hairdresser1", 0.5), Location("Hairdresser2", 0.5)]
 
 positive_vaccinated_percentage = 0.2
-positive_not_vaccinated_percentage = 0.4
-vaccinated_percentage = 0.7
+positive_not_vaccinated_percentage = 0.6
+vaccinated_percentage = 0.6
 household_number = 50
 daily_test_num = 50
 visits_num = 200
