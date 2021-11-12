@@ -1,5 +1,5 @@
 class Person:
-    def __init__(self, id, house_id, first_name, last_name, gender, cell, city, email):
+    def __init__(self, id, house_id, first_name, last_name, gender, cell, city, email, vaccinated):
         self.id = id
         self.house_id = house_id
         self.first_name = first_name
@@ -8,3 +8,4 @@ class Person:
         self.cell = cell
         self.city = city
         self.email = email
+        self.vaccinated = vaccinated

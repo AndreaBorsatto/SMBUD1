@@ -87,7 +87,7 @@ for house in households:
     for user in user_list:
         people.append(
             Person(i, house.id, user.get_first_name(), user.get_last_name(), user.get_gender(), user.get_cell(),
-                   user.get_city(), user.get_email()))
+                   user.get_city(), user.get_email(), False))
         # Creates the query to generate the Person node
         complete_query = complete_query + 'CREATE(p' + str(
             i) + ': Person {firstName: "' + user.get_first_name() + '", lastName: "' + user.get_last_name() + '", gender: "' + user.get_gender() + '", cell: "' + user.get_cell() + '", city: "' + user.get_city() + '", email: "' + user.get_email() + '"})\n'
@@ -95,10 +95,10 @@ for house in households:
         complete_query = complete_query + 'CREATE (p' + str(i) + ')-[:PART_OF]->(h' + str(house.id) + ')\n'
         i += 1
 
-# Takes 80% of the people in the db and assigns a vaccine to them
+# Takes 70% of the people in the db and assigns a vaccine to them
 print("Associating people with vaccines...")
 people_copy = people.copy()
-vaccinatedNum = int(len(people) * 0.8)
+vaccinatedNum = int(len(people) * 0.7)
 
 for i in range(vaccinatedNum):
     vaccinated = people_copy.pop(randint(0, len(people_copy) - 1))
@@ -112,6 +112,7 @@ for i in range(vaccinatedNum):
         complete_query = complete_query + 'CREATE (p' + str(
             vaccinated.id) + ')-[:GETS{dose:2, datetime:datetime("' + str(datetime.date.fromtimestamp(random_date(str(date), "2021-11-14",
                                                                          random()))) + '")}]->(' + vaccine.name + ')\n'
+    vaccinated.vaccinated = True
 
 # Generates contacts between random people
 print("Generating contacts between people...")
@@ -145,7 +146,10 @@ for day in range(days):
     for dailyTest in range(daily_test_num):
         tested_person = choice(people)
         test_type = choice(tests)
-        test_result = "Negative" if random() > 0.4 else "Positive"
+        if tested_person.vaccinated:
+            test_result = "Negative" if random() > 0.2 else "Positive"
+        else:
+            test_result = "Negative" if random() > 0.4 else "Positive"
         complete_query = complete_query + 'CREATE(p' + str(
             tested_person.id) + ')-[:TAKES{datetime:datetime("' + str(
             test_date) + '") , result:"' + test_result + '"}]->(' + test_type.type + ')\n'
