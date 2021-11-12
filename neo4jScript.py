@@ -45,6 +45,9 @@ locations = [Location("Cinema1", 2), Location("Cinema2", 2), Location("Cinema3",
              Location("Pub1", 1), Location("Pub2", 1), Location("Pub3", 1), Location("Pub4", 1), Location("Pub5", 1),
              Location("Hairdresser1", 0.5), Location("Hairdresser2", 0.5)]
 
+positive_vaccinated_percentage = 0.2
+positive_not_vaccinated_percentage = 0.4
+vaccinated_percentage = 0.7
 household_number = 50
 daily_test_num = 50
 visits_num = 200
@@ -98,7 +101,7 @@ for house in households:
 # Takes 70% of the people in the db and assigns a vaccine to them
 print("Associating people with vaccines...")
 people_copy = people.copy()
-vaccinatedNum = int(len(people) * 0.7)
+vaccinatedNum = int(len(people) * vaccinated_percentage)
 
 for i in range(vaccinatedNum):
     vaccinated = people_copy.pop(randint(0, len(people_copy) - 1))
@@ -112,7 +115,8 @@ for i in range(vaccinatedNum):
         complete_query = complete_query + 'CREATE (p' + str(
             vaccinated.id) + ')-[:GETS{dose:2, datetime:datetime("' + str(datetime.date.fromtimestamp(random_date(str(date), "2021-11-14",
                                                                          random()))) + '")}]->(' + vaccine.name + ')\n'
-    vaccinated.vaccinated = True
+    index = people.index(vaccinated)
+    people[index].vaccinated = True
 
 # Generates contacts between random people
 print("Generating contacts between people...")
@@ -147,9 +151,9 @@ for day in range(days):
         tested_person = choice(people)
         test_type = choice(tests)
         if tested_person.vaccinated:
-            test_result = "Negative" if random() > 0.2 else "Positive"
+            test_result = "Negative" if random() > positive_vaccinated_percentage else "Positive"
         else:
-            test_result = "Negative" if random() > 0.4 else "Positive"
+            test_result = "Negative" if random() > positive_not_vaccinated_percentage else "Positive"
         complete_query = complete_query + 'CREATE(p' + str(
             tested_person.id) + ')-[:TAKES{datetime:datetime("' + str(
             test_date) + '") , result:"' + test_result + '"}]->(' + test_type.type + ')\n'
