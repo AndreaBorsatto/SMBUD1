@@ -14,7 +14,7 @@ def str_time_prop(start, end, time_format, prop):
     start and end should be strings specifying times formatted in the
     given format (strftime-style), giving an interval [start, end].
     prop specifies how a proportion of the interval to be taken after
-    start.  The returned time will be in the specified format.
+    start. Returns the random date as a timestamp.
     """
 
     stime = time.mktime(time.strptime(start, time_format))
@@ -26,10 +26,22 @@ def str_time_prop(start, end, time_format, prop):
 
 
 def random_date(start, end, prop):
+    """
+    :param start: start date of the interval
+    :param end: end date of the interval
+    :param prop: random int used to generate random date
+    :return: a random date between start and stop as a timestamp
+    """
     return str_time_prop(start, end, '%Y-%m-%d', prop)
 
 
 def random_date_hour(start, end, prop):
+    """
+    :param start: start date of the interval
+    :param end: end date of the interval
+    :param prop: random int used to generate random date
+    :return: a random date, with hours and minutes, between start and stop as a timestamp
+    """
     return str_time_prop(start, end, '%Y-%m-%d %H:%M', prop)
 
 
@@ -129,19 +141,6 @@ for i in range(contactNum):
         date = datetime.datetime.fromtimestamp(random_date_hour("2021-1-1 00:00", "2021-11-14 23:59", random()))
         complete_query = complete_query + 'CREATE (p' + str(p1.id) + ')-[:CONTACT{datetime:datetime("' + str(date.date()) + 'T' + str(date.time()) + '")}]->(p' + str(
             p2.id) + ')\n'
-
-"""
-# Associates tests with people
-for i in range(100):
-    tested_person = choice(people)
-    test_type = choice(tests)
-    test_date = datetime.date.fromtimestamp(random_date("2020-2-1", "2021-11-14", random()))
-    # 40% probability to be positive after a test
-    test_result = "Negative" if random() > 0.4 else "Positive"
-
-    complete_query = complete_query + 'CREATE(p' + str(
-        tested_person.id) + ')-[:TAKES{datetime:datetime("' + str(test_date) + '") , result:"' + test_result + '"}]->(' + test_type.type + ')\n'
-"""
 
 # Generates one test per day form 2021-10-14 to 2021-11-14
 print("Generating 50 tests a day from 2021-10-14 to 2021-11-14...")
