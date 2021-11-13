@@ -47,7 +47,7 @@ def random_date_hour(start, end, prop):
 
 households = []
 people = []
-tests = [Test("Serological"), Test("Molecular"), Test("Fast")]
+tests = [Test("Serological"), Test("Molecular"), Test("Rapid")]
 vaccines = [Vaccine("PfizerBioNTech", 180, 2), Vaccine("Moderna", 180, 2), Vaccine("AstraZeneca", 84, 2),
             Vaccine("JohnsonAndJohnson", 240, 1)]
 locations = [Location("Cinema1", 2), Location("Cinema2", 2), Location("Cinema3", 2), Location("Restaurant1", 1.5),
@@ -57,8 +57,9 @@ locations = [Location("Cinema1", 2), Location("Cinema2", 2), Location("Cinema3",
              Location("Pub1", 1), Location("Pub2", 1), Location("Pub3", 1), Location("Pub4", 1), Location("Pub5", 1),
              Location("Hairdresser1", 0.5), Location("Hairdresser2", 0.5)]
 
-positive_vaccinated_percentage = 0.2
 positive_not_vaccinated_percentage = 0.6
+positive_vaccinated_percentage = 0.2
+second_dose_probability = 0.5
 vaccinated_percentage = 0.6
 household_number = 50
 daily_test_num = 50
@@ -81,9 +82,10 @@ for test in tests:
 
 # Generates nodes for locations
 print("Generating nodes for locations...")
+i = 0
 for location in locations:
-    complete_query = complete_query + 'CREATE(' + location.name + ': Location{name:"' + location.name + '", avg_stay_time:' + str(location.averageStay) + '})\n'
-
+    complete_query = complete_query + 'CREATE(' + location.name + ': Location{id:' + str(i) + ', name:"' + location.name + '", avg_stay_time:' + str(location.averageStay) + '})\n'
+    i += 1
 # Generates 30 households nodes with associated the number of members
 print("Generating nodes for households...")
 for house_id in range(household_number):
@@ -92,7 +94,7 @@ for house_id in range(household_number):
     household = Household(house_id, members, address)
     households.append(household)
     complete_query = complete_query + 'CREATE(h' + str(house_id) + ': Huosehold {id: ' + str(
-        house_id) + ', members: ' + str(members) + ', address:"' + household.address + '"})\n'
+        house_id) + ', address:"' + household.address + '"})\n'
 
 # Generates people for each household with random data taken from randomuser library
 print("Generating nodes for people...")
@@ -102,10 +104,10 @@ for house in households:
     for user in user_list:
         people.append(
             Person(i, house.id, user.get_first_name(), user.get_last_name(), user.get_gender(), user.get_cell(),
-                   user.get_city(), user.get_email(), False))
+                   user.get_city(), user.get_email(), user.get_dob(), False))
         # Creates the query to generate the Person node
         complete_query = complete_query + 'CREATE(p' + str(
-            i) + ': Person {firstName: "' + user.get_first_name() + '", lastName: "' + user.get_last_name() + '", gender: "' + user.get_gender() + '", cell: "' + user.get_cell() + '", city: "' + user.get_city() + '", email: "' + user.get_email() + '"})\n'
+            i) + ': Person {id: ' + str(i) + ', firstName: "' + user.get_first_name() + '", lastName: "' + user.get_last_name() + '", gender: "' + user.get_gender() + '", cell: "' + user.get_cell() + '", city: "' + user.get_city() + '", email: "' + user.get_email() + '", date_of_birth: "' + user.get_dob() +  '"})\n'
         # Creates the query to generate the relation between the Person and its household
         complete_query = complete_query + 'CREATE (p' + str(i) + ')-[:PART_OF]->(h' + str(house.id) + ')\n'
         i += 1
@@ -123,7 +125,7 @@ for i in range(vaccinatedNum):
     complete_query = complete_query + 'CREATE (p' + str(
         vaccinated.id) + ')-[:GETS{dose:1, datetime:datetime("' + str(date) + '")}]->(' + vaccine.name + ')\n'
     # People that took a vaccine with a possible 2nd dose, have 50% to have already done it
-    if vaccine.minDoses > 1 and random() > 0.5:
+    if vaccine.minDoses > 1 and random() < second_dose_probability:
         complete_query = complete_query + 'CREATE (p' + str(
             vaccinated.id) + ')-[:GETS{dose:2, datetime:datetime("' + str(datetime.date.fromtimestamp(random_date(str(date), "2021-11-14",
                                                                          random()))) + '")}]->(' + vaccine.name + ')\n'
@@ -138,7 +140,7 @@ for i in range(contactNum):
     p2 = choice(people)
 
     if p1 != p2:
-        date = datetime.datetime.fromtimestamp(random_date_hour("2021-1-1 00:00", "2021-11-14 23:59", random()))
+        date = datetime.datetime.fromtimestamp(random_date_hour("2021-10-14 00:00", "2021-11-14 23:59", random()))
         complete_query = complete_query + 'CREATE (p' + str(p1.id) + ')-[:CONTACT{datetime:datetime("' + str(date.date()) + 'T' + str(date.time()) + '")}]->(p' + str(
             p2.id) + ')\n'
 
@@ -163,7 +165,7 @@ print("Associating people with locations...")
 for i in range(visits_num):
     location = choice(locations)
     person = choice(people)
-    location_date = datetime.date.fromtimestamp(random_date("2020-2-1", "2021-11-14", random()))
+    location_date = datetime.date.fromtimestamp(random_date("2021-10-14", "2021-11-14", random()))
 
     complete_query = complete_query + 'CREATE(p' + str(person.id) + ')-[:VISITS{datetime:datetime("' + str(location_date) + '")}]->(' + location.name + ')\n'
 
