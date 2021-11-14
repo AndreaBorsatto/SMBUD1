@@ -93,7 +93,7 @@ for house_id in range(household_number):
     address = RandomUser().get_street()
     household = Household(house_id, members, address)
     households.append(household)
-    complete_query = complete_query + 'CREATE(h' + str(house_id) + ': Huosehold {id: ' + str(
+    complete_query = complete_query + 'CREATE(h' + str(house_id) + ': Household {id: ' + str(
         house_id) + ', address:"' + household.address + '"})\n'
 
 # Generates people for each household with random data taken from randomuser library
