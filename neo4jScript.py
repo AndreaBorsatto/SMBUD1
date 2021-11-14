@@ -50,8 +50,8 @@ def random_date_hour(start, end, prop):
 households = []
 people = []
 tests = [Test("Serological"), Test("Molecular"), Test("Rapid")]
-vaccines = [Vaccine("PfizerBioNTech", 180, 2), Vaccine("Moderna", 180, 2), Vaccine("AstraZeneca", 84, 2),
-            Vaccine("JohnsonAndJohnson", 240, 1)]
+vaccines = [Vaccine("PfizerBioNTech", 35, 2), Vaccine("Moderna", 35, 2), Vaccine("AstraZeneca", 84, 2),
+            Vaccine("JohnsonAndJohnson", 35, 1)]
 locations = [Location("Cinema1", 2), Location("Cinema2", 2), Location("Cinema3", 2), Location("Restaurant1", 1.5),
              Location("Restaurant2", 1.5), Location("Restaurant3", 1.5), Location("Restaurant4", 1.5),
              Location("Restaurant5", 1.5), Location("Pub1", 1), Location("Pub2", 1), Location("Pub3", 1),
