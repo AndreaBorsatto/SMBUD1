@@ -7,6 +7,7 @@ from Location import *
 from randomuser import RandomUser
 import time as time
 import datetime as datetime
+import os
 
 
 def str_time_prop(start, end, time_format, prop):
@@ -123,14 +124,16 @@ for i in range(vaccinatedNum):
     # vaccine_type = randint(0, len(vaccines))
     vaccine = choice(vaccines)
     date = datetime.date.fromtimestamp(random_date("2021-1-1", "2021-11-14", random()))
-    complete_query = complete_query + 'CREATE (p' + str(
-        vaccinated.id) + ')-[:GETS{dose:1, datetime:datetime("' + str(date) + '")}]->(' + vaccine.name + ')\n'
+    
     # People that took a vaccine with a possible 2nd dose, have 50% to have already done it
-    if vaccine.minDoses > 1 and random() < second_dose_probability:
+    if vaccine.minDoses > 1 and random() > 0.5:
         complete_query = complete_query + 'CREATE (p' + str(
-            vaccinated.id) + ')-[:GETS{dose:2, datetime:datetime("' + str(
-            datetime.date.fromtimestamp(random_date(str(date), "2021-11-14",
-                                                    random()))) + '")}]->(' + vaccine.name + ')\n'
+            vaccinated.id) + ')-[:GETS{dose:2, datetime:datetime("' + str(datetime.date.fromtimestamp(random_date(str(date), "2021-11-14",
+                                                                         random()))) + '")}]->(' + vaccine.name + ')\n'
+    else:
+        complete_query = complete_query + 'CREATE (p' + str(
+            vaccinated.id) + ')-[:GETS{dose:1, datetime:datetime("' + str(date) + '")}]->(' + vaccine.name + ')\n'
+
     index = people.index(vaccinated)
     people[index].vaccinated = True
 
@@ -174,6 +177,10 @@ for i in range(visits_num):
         location_date) + '")}]->(' + location.name + ')\n'
 
 print(complete_query)
-f = open("Query.txt", "w", encoding="utf-8")
+
+here = os.path.dirname(os.path.abspath(__file__))
+filename = os.path.join(here, 'Query.txt')
+
+f = open(filename, "w", encoding="utf-8")
 f.write(complete_query)
 f.close()
