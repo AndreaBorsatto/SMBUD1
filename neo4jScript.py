@@ -149,7 +149,7 @@ for i in range(contactNum):
 
 # Generates one test per day form 2021-10-14 to 2021-11-14
 print("Generating 50 tests a day from 2021-10-14 to 2021-11-14...")
-test_date = datetime.date(2021, 10, 1)
+test_date = datetime.date(2021, 10, 14)
 for day in range(days):
     for dailyTest in range(daily_test_num):
         tested_person = choice(people)
